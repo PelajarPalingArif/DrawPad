@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Pad</title>
+    <link rel="shortcut icon" href="sketch.jpeg " type="image/x-icon">
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .container+.container {
+            margin-top: 10px;
+        }
+
+        #misc {
+            border: 3px solid black;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #misc>*+* {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <canvas id="can" height="500px" width="500px" style="border:4px solid black;"></canvas>
+        <div id="misc">
+            <div><input type="color" id="currColor" value="#000000"></div>
+            <div>
+                <input type="range" id="strokeWidthRange" max="100" min="0" value="10" style="width:80%">
+                <input type="number" width="30px" readonly value="10" id="strokeWidthBox">
+            </div>
+            <div>
+                <button id="clearCanvasButton">Clear</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        window.addEventListener("load", () => {
+            document.addEventListener("mousedown", startPainting);
+            document.addEventListener("mouseup", stopPainting)
+            document.addEventListener("mousemove", draw);
+        });
+        
+
+        var box = document.querySelector("#can");
+        var colorInput = document.querySelector("#currColor");
+        var strokeWidthBox = document.querySelector("#strokeWidthBox");
+        var strokeWidthInput = document.querySelector("#strokeWidthRange");
+        var clearCanvasButton = document.querySelector("#clearCanvasButton");
+        var ctx = box.getContext("2d");
+        ctx.lineWidth = 10;
+        var paint = false;
+        var coord = { x: 0, y: 0 };
+
+        colorInput.addEventListener("input", () => {
+            let hexValue = colorInput.value.substring(1);
+            let hexArr = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexValue);
+
+            ctx.strokeStyle = `rgb(${hexArr[1]} ${hexArr[2]} ${hexArr[3]})`;
+            
+        });
+
+        strokeWidthInput.addEventListener("input", (e) => {
+            
+            strokeWidthBox.value = strokeWidthInput.value;
+            ctx.lineWidth = strokeWidthInput.value;
+
+        });
+
+        clearCanvasButton.addEventListener("click", () => {
+            ctx.clearRect(0, 0, box.width, box.height);
+        });
+
+        function getPosition(event) {
+            coord.x = event.clientX - box.offsetLeft;
+            coord.y = event.clientY - box.offsetTop;
+        }
+
+        function startPainting(event) {
+            getPosition(event);
+            paint = true;
+        }
+
+        function draw(event) {
+            if (!paint) return;
+            ctx.beginPath();
+            ctx.moveTo(coord.x, coord.y);
+            
+            getPosition(event);
+            
+            ctx.lineTo(coord.x, coord.y);
+            ctx.stroke();
+
+        }
+
+
+        function stopPainting() {
+            paint = false;
+        }
+
+    </script>
+</body>
+
+</html>
